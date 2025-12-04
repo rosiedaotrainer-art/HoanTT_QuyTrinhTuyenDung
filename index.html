@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoan TT - Recruitment Operations Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0B1E3D', // Dark Blue
+                        secondary: '#F97316', // Orange
+                        accent: '#14B8A6', // Teal
+                        neutral: '#F3F4F6',
+                        success: '#22c55e',
+                        warning: '#eab308'
+                    },
+                    fontFamily: {
+                        sans: ['Roboto', 'sans-serif'],
+                        display: ['Montserrat', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .tab-active {
+            border-bottom: 3px solid #F97316;
+            color: #0B1E3D;
+            font-weight: 700;
+        }
+        .tab-inactive {
+            color: #6B7280;
+            font-weight: 500;
+        }
+        .tab-inactive:hover {
+            color: #F97316;
+        }
+        
+        .raci-table th, .raci-table td {
+            border: 1px solid #e5e7eb;
+            padding: 12px;
+            text-align: center;
+        }
+        .raci-table th {
+            background-color: #0B1E3D;
+            color: white;
+        }
+        .raci-cell-R { background-color: #ffe4e6; color: #be123c; font-weight: bold; } 
+        .raci-cell-A { background-color: #dcfce7; color: #15803d; font-weight: bold; } 
+        .raci-cell-C { background-color: #dbeafe; color: #1d4ed8; font-weight: bold; } 
+        .raci-cell-I { background-color: #f3f4f6; color: #4b5563; font-weight: bold; }
+
+        .form-input {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            padding: 8px;
+            border-radius: 4px;
+            background-color: #f9fafb;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        
+        .step-marker {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            flex-shrink: 0;
+            position: relative;
+            z-index: 10;
+        }
+        .step-line {
+            width: 2px;
+            background-color: #E5E7EB;
+            position: absolute;
+            top: 3.5rem;
+            bottom: -2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 0;
+        }
+        .last-step .step-line { display: none; }
+
+        .role-switch-btn {
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        .role-active {
+            background-color: #0B1E3D;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .role-inactive {
+            background-color: #E5E7EB;
+            color: #6B7280;
+        }
+        .role-inactive:hover {
+            background-color: #D1D5DB;
+        }
+
+        .flow-arrow {
+            display: flex;
+            align-items: center;
+            color: #9CA3AF;
+            margin: 0 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-primary text-white shadow-lg z-20 flex-shrink-0">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div>
+                    <h1 class="font-display font-bold text-lg md:text-xl uppercase tracking-wider">Hoan TT Operations Hub</h1>
+                    <p class="text-xs text-gray-400">Vận Hành Tuyển Dụng Tổng Hợp (Sales & Office)</p>
+                </div>
+            </div>
+            <div class="hidden md:block">
+                <span class="bg-green-600 text-white text-xs px-3 py-1 rounded-full uppercase tracking-wide font-bold">Phiên bản Chuyên Sâu (Deep Dive) - Fixed</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="bg-white border-b border-gray-200 shadow-sm z-10 flex-shrink-0">
+        <div class="container mx-auto px-6">
+            <div class="flex space-x-8">
+                <button onclick="switchTab('process')" id="tab-process" class="tab-active py-4 px-2 transition-colors flex items-center gap-2">
+                    <i class="fas fa-project-diagram"></i> Quy Trình (Process)
+                </button>
+                <button onclick="switchTab('raci')" id="tab-raci" class="tab-inactive py-4 px-2 transition-colors flex items-center gap-2">
+                    <i class="fas fa-users-cog"></i> Ma Trận Vai Trò (RACI)
+                </button>
+                <button onclick="switchTab('forms')" id="tab-forms" class="tab-inactive py-4 px-2 transition-colors flex items-center gap-2">
+                    <i class="fas fa-file-signature"></i> Biểu Mẫu (Forms)
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content Area -->
+    <main class="flex-1 overflow-y-auto p-6 relative">
+        <div class="container mx-auto max-w-6xl">
+            
+            <!-- VIEW 1: PROCESS FLOW (Quy trình) -->
+            <div id="view-process" class="block animate-fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-2xl font-display font-bold text-primary">Quy Trình Tuyển Dụng 5 Bước Chuyên Sâu</h2>
+                        <p class="text-sm text-gray-500">Chi tiết hóa từng hành động, kịch bản hội thoại và các điểm kiểm soát rủi ro.</p>
+                    </div>
+                    <button class="bg-white border border-secondary text-secondary px-4 py-2 rounded-lg font-bold hover:bg-secondary hover:text-white transition text-sm shadow-sm">
+                        <i class="fas fa-print mr-2"></i> Xuất PDF
+                    </button>
+                </div>
+
+                <!-- Step 1: Planning -->
+                <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-l-4 border-secondary relative overflow-hidden group hover:shadow-lg transition">
+                    <div class="flex items-start gap-6">
+                        <div class="flex flex-col items-center">
+                            <div class="step-marker bg-secondary">1</div>
+                            <div class="step-line"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-xl font-bold text-primary">Planning & Calibration (Lập Kế Hoạch & Thống Nhất)</h3>
+                                <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2 py-1 rounded border border-orange-200">SLA: 2-3 Ngày</span>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+                                <!-- Standard Actions -->
+                                <div>
+                                    <h4 class="font-bold text-sm text-gray-700 uppercase border-b pb-1 mb-2">Hoạt động chuẩn</h4>
+                                    <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                                        <li><strong>Headcount Check:</strong> So khớp với AOP (Kế hoạch năm). Nếu ngoài ngân sách -> Cần phê duyệt đặc biệt.</li>
+                                        <li><strong>JD Calibration:</strong> Không dùng JD cũ. Phải cập nhật lại theo thực tế thị trường.</li>
+                                        <li><strong>Market Mapping:</strong> Xác định các công ty đối thủ để "săn" người (Target List).</li>
+                                    </ul>
+                                </div>
+                                <!-- Deep Dive: Intake Meeting Script -->
+                                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                    <h4 class="font-bold text-sm text-primary uppercase border-b border-gray-300 pb-1 mb-2"><i class="fas fa-comments text-secondary mr-2"></i>Kịch bản họp (Intake Script)</h4>
+                                    <p class="text-xs text-gray-500 mb-2 italic">HR phải hỏi Manager 3 câu "sống còn" này:</p>
+                                    <ul class="text-sm text-gray-700 space-y-3">
+                                        <li>
+                                            <strong class="text-primary block">1. Must-have vs Nice-to-have:</strong>
+                                            "Kỹ năng nào thiếu là loại ngay? (Ví dụ: Tiếng Anh, Excel Pivot). Kỹ năng nào có thể đào tạo?"
+                                        </li>
+                                        <li>
+                                            <strong class="text-primary block">2. Selling Point (USP):</strong>
+                                            "Tại sao một người giỏi đang làm ở đối thủ lại muốn sang làm cho Anh/Chị? (Lương cao hơn? Cơ hội thăng tiến? Hay Sếp giỏi?)"
+                                        </li>
+                                        <li>
+                                            <strong class="text-primary block">3. Pain Point:</strong>
+                                            "Tại sao nhân sự cũ nghỉ việc? Người mới cần có tố chất gì để không lặp lại vết xe đổ đó?"
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- Outcome -->
+                            <div class="mt-4 pt-4 border-t border-dashed border-gray-300">
+                                <div class="text-xs text-gray-600 flex items-center">
+                                    <strong><i class="fas fa-flag-checkered text-green-600 mr-1"></i>Outcome:</strong> 
+                                    <span class="ml-1">JD đã chốt + Scorecard (Bảng điểm phỏng vấn) + Danh sách công ty mục tiêu (Target Companies).</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Sourcing -->
+                <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-l-4 border-accent relative overflow-hidden group hover:shadow-lg transition">
+                    <div class="flex items-start gap-6">
+                        <div class="flex flex-col items-center">
+                            <div class="step-marker bg-accent">2</div>
+                            <div class="step-line"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-xl font-bold text-primary">Sourcing & Screening (Tìm Nguồn & Sàng Lọc)</h3>
+                                <span class="bg-teal-100 text-teal-700 text-xs font-bold px-2 py-1 rounded border border-teal-200">SLA: 10-14 Ngày | KPI: 6 CV Shortlist</span>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+                                <!-- Detailed Channels -->
+                                <div>
+                                    <h4 class="font-bold text-sm text-gray-700 uppercase border-b pb-1 mb-2">Kênh tuyển dụng chi tiết</h4>
+                                    <ul class="text-sm text-gray-600 space-y-2 list-disc list-inside">
+                                        <li><strong>Mass Sales:</strong> Facebook Groups (Tuyển dụng Sales Admin, Chợ Sale), Vieclam24h, TopCV.</li>
+                                        <li><strong>Senior/Office:</strong> LinkedIn (Bắt buộc), VietnamWorks, CareerBuilder.</li>
+                                        <li><strong>Headhunting:</strong> Tự search ứng viên trên LinkedIn và gửi InMail.</li>
+                                        <li><strong>Referral (Nội bộ):</strong> Thưởng nóng cho nhân viên giới thiệu (Ví dụ: 1-3 triệu/người).</li>
+                                    </ul>
+                                </div>
+                                <!-- Deep Dive: Boolean & Red Flags -->
+                                <div>
+                                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mb-3">
+                                        <h4 class="font-bold text-sm text-primary mb-1"><i class="fas fa-search text-accent mr-2"></i>Kỹ thuật Boolean Search (LinkedIn)</h4>
+                                        <p class="text-xs text-gray-600 mb-1">Copy đoạn này dán vào ô tìm kiếm:</p>
+                                        <code class="block bg-black text-green-400 text-xs p-2 rounded mb-1">("Sales Executive" OR "Business Development") AND ("FMCG" OR "Cosmetics" OR "Pharmacy") AND ("Ho Chi Minh")</code>
+                                        <p class="text-[10px] text-gray-500 italic">Giúp lọc ra ứng viên đúng ngành, đúng vị trí, đúng địa điểm ngay lập tức.</p>
+                                    </div>
+                                    <div class="bg-red-50 p-3 rounded-lg border border-red-100">
+                                        <h4 class="font-bold text-sm text-red-800 mb-1"><i class="fas fa-flag text-red-600 mr-2"></i>3 Dấu hiệu báo động (Red Flags) khi gọi điện</h4>
+                                        <ul class="text-xs text-red-700 list-disc list-inside">
+                                            <li><strong>Nhầm lẫn:</strong> Không nhớ mình đã ứng tuyển vào vị trí nào/công ty nào.</li>
+                                            <li><strong>Tiêu cực:</strong> Nói xấu sếp cũ/công ty cũ ngay trong 3 phút đầu tiên.</li>
+                                            <li><strong>Chỉ quan tâm quyền lợi:</strong> Hỏi "Lương bao nhiêu, có đóng bảo hiểm full không?" trước khi hỏi "Công việc làm gì?".</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Interview -->
+                <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-l-4 border-blue-600 relative overflow-hidden group hover:shadow-lg transition">
+                    <div class="flex items-start gap-6">
+                        <div class="flex flex-col items-center">
+                            <div class="step-marker bg-blue-600">3</div>
+                            <div class="step-line"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-xl font-bold text-primary">Selection (Phỏng Vấn & Đánh Giá)</h3>
+                                <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded border border-blue-200">SLA: 3-5 Ngày/Vòng | Method: STAR</span>
+                            </div>
+                            
+                            <!-- Visual Structure -->
+                            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+                                <div class="text-xs font-bold text-gray-500 uppercase mb-2">Phân bổ thời gian 60 phút (Interview Agenda):</div>
+                                <div class="flex gap-1 text-[10px] text-center">
+                                    <div class="bg-white border p-2 rounded flex-1"><span class="block font-bold text-blue-600 text-lg">5'</span>Ice-break<br>(Chào hỏi)</div>
+                                    <div class="bg-white border p-2 rounded flex-1"><span class="block font-bold text-blue-600 text-lg">15'</span>Profile<br>(Kinh nghiệm)</div>
+                                    <div class="bg-blue-100 border border-blue-300 p-2 rounded flex-[2] shadow-inner"><span class="block font-bold text-blue-800 text-lg">30' STAR</span>Hỏi hành vi (Behavior)</div>
+                                    <div class="bg-white border p-2 rounded flex-1"><span class="block font-bold text-blue-600 text-lg">10'</span>Q&A<br>(Bán công việc)</div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <!-- Detailed STAR Example -->
+                                <div>
+                                    <h4 class="font-bold text-sm text-gray-700 uppercase border-b pb-1 mb-2">Minh họa STAR (Ví dụ Sales thực tế)</h4>
+                                    <p class="text-xs text-gray-500 mb-2">Khi hỏi: "Kể về 1 lần bạn đạt doanh số khó khăn nhất?"</p>
+                                    <ul class="text-sm text-gray-600 space-y-2">
+                                        <li class="bg-gray-50 p-2 rounded border-l-2 border-blue-500"><strong>S (Situation):</strong> "Tháng 6/2023, thị trường chậm, tôi bị rớt 1 đại lý lớn chiếm 30% doanh số."</li>
+                                        <li class="bg-gray-50 p-2 rounded border-l-2 border-green-500"><strong>A (Action):</strong> "Tôi rà soát lại tuyến, tìm danh sách 20 cửa hàng tiềm năng chưa mua, đi chào từng cửa hàng. Tôi cũng xin sếp chương trình khuyến mãi mua 5 tặng 1 để kích cầu."</li>
+                                        <li class="bg-gray-50 p-2 rounded border-l-2 border-orange-500"><strong>R (Result):</strong> "Mở mới được 5 đại lý nhỏ, bù đắp được doanh số. Cuối tháng đạt 105% KPI."</li>
+                                    </ul>
+                                </div>
+                                <!-- Deep Dive: Evaluation Biases -->
+                                <div>
+                                    <div class="bg-yellow-50 p-3 rounded border border-yellow-200 h-full">
+                                        <h4 class="font-bold text-sm text-yellow-800 mb-2"><i class="fas fa-exclamation-triangle mr-2"></i>Các lỗi đánh giá cần tránh</h4>
+                                        <ul class="text-xs text-gray-700 list-disc list-inside space-y-2">
+                                            <li><strong>Halo Effect (Hào quang):</strong> Thấy ứng viên ngoại hình đẹp, nói năng lưu loát => Cho qua hết các lỗi thiếu kỹ năng chuyên môn.</li>
+                                            <li><strong>Affinity Bias (Tương đồng):</strong> Thích ứng viên vì họ cùng quê, cùng trường Đại học, hoặc cùng sở thích đá bóng với mình.</li>
+                                            <li><strong>Contrast Effect (Tương phản):</strong> Đánh giá cao một ứng viên trung bình chỉ vì người phỏng vấn trước đó quá tệ.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Offer -->
+                <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-l-4 border-purple-600 relative overflow-hidden group hover:shadow-lg transition">
+                    <div class="flex items-start gap-6">
+                        <div class="flex flex-col items-center">
+                            <div class="step-marker bg-purple-600">4</div>
+                            <div class="step-line"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-xl font-bold text-primary">Offer & Closing (Đề Nghị & Chốt Deal)</h3>
+                                <span class="bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded border border-purple-200">SLA: 3-5 Ngày | Rate: > 90%</span>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+                                <div>
+                                    <h4 class="font-bold text-sm text-gray-700 uppercase border-b pb-1 mb-2">Quy trình chuẩn</h4>
+                                    <ol class="list-decimal list-inside text-sm text-gray-600 space-y-2 mb-3">
+                                        <li class="font-bold text-purple-700 bg-purple-50 p-1 rounded">Thực hiện Reference Check (Bắt buộc).</li>
+                                        <li>Xây dựng phương án lương (Salary Proposal) so với ngân sách.</li>
+                                        <li>Trình Giám đốc phê duyệt.</li>
+                                        <li>Gửi Offer Letter & Gọi điện giải thích rõ thu nhập.</li>
+                                    </ol>
+                                    <div class="bg-gray-100 p-2 rounded border border-gray-200 text-xs italic">
+                                        *Tip: Đừng chỉ gửi email. Hãy gọi điện để "bán" cơ hội một lần nữa.
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <!-- Total Rewards Breakdown -->
+                                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                        <h4 class="font-bold text-sm text-primary mb-1"><i class="fas fa-coins text-purple-600 mr-2"></i>Cấu trúc Offer (Total Rewards)</h4>
+                                        <ul class="text-xs text-gray-600 list-disc list-inside space-y-1">
+                                            <li><strong>Fixed (Cứng):</strong> Lương cơ bản + Phụ cấp (Cơm, Xăng, Điện thoại).</li>
+                                            <li><strong>Variable (Biến đổi):</strong> Hoa hồng (Commission) theo doanh số thực đạt. Thưởng quý/năm.</li>
+                                            <li><strong>Benefits (Phúc lợi):</strong> BHXH full lương (nếu có), Du lịch, Khám sức khỏe.</li>
+                                        </ul>
+                                    </div>
+                                    <!-- Reference Check Importance -->
+                                    <div class="bg-white border border-gray-300 p-3 rounded-lg border-l-4 border-l-purple-600">
+                                        <h4 class="font-bold text-sm text-primary mb-1">Tại sao Reference Check ở đây?</h4>
+                                        <p class="text-xs text-gray-600 italic">Đây là "chốt chặn" an toàn cuối cùng. Để xác minh: Ứng viên có nói dối về chức vụ/lương cũ không? Lý do nghỉ việc thực sự là gì?</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5: Onboarding -->
+                <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-l-4 border-green-600 relative overflow-hidden group hover:shadow-lg transition last-step">
+                    <div class="flex items-start gap-6">
+                        <div class="flex flex-col items-center">
+                            <div class="step-marker bg-green-600">5</div>
+                            <div class="step-line"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-xl font-bold text-primary">Onboarding (Hội Nhập & Thử Việc)</h3>
+                                <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded border border-green-200">SLA: 60 Ngày</span>
+                            </div>
+                            
+                            <!-- Timeline -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div class="bg-green-50 p-3 rounded border border-green-200">
+                                    <div class="text-sm font-bold text-green-800 uppercase mb-1">Tháng 1: HỌC & HÀNH</div>
+                                    <p class="text-xs text-gray-600 mb-2">Tuần 1 học sản phẩm. Tuần 2 đi thị trường (Riding). Hiểu địa bàn.</p>
+                                    <div class="bg-white p-1 rounded text-[10px] text-gray-500 border font-bold">Goal: Có đơn hàng đầu tiên.</div>
+                                </div>
+                                <div class="bg-orange-50 p-3 rounded border border-orange-200">
+                                    <div class="text-sm font-bold text-orange-800 uppercase mb-1">Tháng 2: THỬ THÁCH</div>
+                                    <p class="text-xs text-gray-600 mb-2">Chạy KPI thử việc (80% mức chính thức). <strong>Ngày 55: Đánh giá.</strong></p>
+                                    <div class="bg-white p-1 rounded text-[10px] text-gray-500 border font-bold text-red-600">Goal: Đạt KPI -> Ký HĐLĐ.</div>
+                                </div>
+                                <div class="bg-blue-50 p-3 rounded border border-blue-200">
+                                    <div class="text-sm font-bold text-blue-800 uppercase mb-1">Tháng 3: CHÍNH THỨC</div>
+                                    <p class="text-xs text-gray-600 mb-2">Nhân viên chính thức. Nhận 100% lương & Thưởng.</p>
+                                    <div class="bg-white p-1 rounded text-[10px] text-gray-500 border font-bold text-blue-600">Goal: Tăng tốc & Ổn định.</div>
+                                </div>
+                            </div>
+
+                            <!-- Detail for Sales vs Office -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-white p-3 rounded border border-orange-200 border-l-4 border-l-orange-500">
+                                    <strong class="text-orange-700 block mb-1">SALES (Kinh Doanh - Trading)</strong>
+                                    <ul class="text-xs text-gray-600 list-disc list-inside">
+                                        <li><strong>Tuần 1:</strong> Phải thuộc danh mục hàng hóa (SKU) & Giá.</li>
+                                        <li><strong>Tuần 2-4:</strong> Phải đi tuyến, gặp khách hàng thực tế.</li>
+                                        <li><strong>KPI:</strong> Doanh số bán hàng, Số lượng mở điểm bán mới.</li>
+                                        <li><strong>Fail Fast:</strong> Nếu hết tháng 1 không dám đi gặp khách -> Cho nghỉ ngay.</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-3 rounded border border-blue-200 border-l-4 border-l-blue-500">
+                                    <strong class="text-blue-700 block mb-1">OFFICE (Văn Phòng)</strong>
+                                    <ul class="text-xs text-gray-600 list-disc list-inside">
+                                        <li><strong>Tuần 1:</strong> Nắm quy trình nội bộ, hệ thống ERP/MISA.</li>
+                                        <li><strong>Tháng 1-2:</strong> Tiếp nhận bàn giao công việc, xử lý chứng từ.</li>
+                                        <li><strong>KPI:</strong> Độ chính xác số liệu, Tuân thủ thời hạn (Deadline).</li>
+                                        <li><strong>Fail Fast:</strong> Sai sót số liệu nghiêm trọng hoặc thái độ không hợp tác.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- VIEW 2: RACI MATRIX (Ma trận) -->
+            <div id="view-raci" class="hidden animate-fade-in">
+                <div class="bg-white rounded-xl shadow-lg p-6 overflow-x-auto">
+                    <h2 class="text-2xl font-display font-bold text-primary mb-4">Ma trận Phân Nhiệm (RACI Matrix) Chi Tiết</h2>
+                    
+                    <div class="flex flex-wrap gap-4 mb-6 text-sm bg-gray-50 p-3 rounded border border-gray-200">
+                        <div class="flex items-center"><span class="w-6 h-6 raci-cell-R flex items-center justify-center rounded mr-2 border border-red-200">R</span> <strong>Responsible:</strong> Làm chính</div>
+                        <div class="flex items-center"><span class="w-6 h-6 raci-cell-A flex items-center justify-center rounded mr-2 border border-green-200">A</span> <strong>Accountable:</strong> Duyệt/Chịu TN</div>
+                        <div class="flex items-center"><span class="w-6 h-6 raci-cell-C flex items-center justify-center rounded mr-2 border border-blue-200">C</span> <strong>Consulted:</strong> Tham vấn</div>
+                        <div class="flex items-center"><span class="w-6 h-6 raci-cell-I flex items-center justify-center rounded mr-2 border border-gray-300">I</span> <strong>Informed:</strong> Thông báo</div>
+                    </div>
+
+                    <table class="w-full raci-table text-sm border-collapse shadow-sm">
+                        <thead>
+                            <tr>
+                                <th class="w-1/3 text-left pl-4 py-3 bg-primary text-white">Nhiệm vụ (Tasks)</th>
+                                <th class="w-1/6 bg-primary text-white">Line Manager<br>(Sales/Office)</th>
+                                <th class="w-1/6 bg-primary text-white">Recruiter</th>
+                                <th class="w-1/6 bg-primary text-white">HR Manager</th>
+                                <th class="w-1/6 bg-primary text-white">Director</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Step 1 -->
+                            <tr class="bg-gray-100 border-b border-gray-200"><td colspan="5" class="text-left font-bold text-primary pl-4 py-2">1. Lập Kế Hoạch</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="text-left pl-4">Xác định nhu cầu & Viết JD</td><td class="raci-cell-R">R</td><td class="raci-cell-C">C</td><td class="raci-cell-I">I</td><td class="raci-cell-A">A</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="text-left pl-4">Phê duyệt ngân sách lương</td><td class="raci-cell-I">I</td><td class="raci-cell-I">I</td><td class="raci-cell-R">R</td><td class="raci-cell-A">A</td></tr>
+                            <!-- Step 2 -->
+                            <tr class="bg-gray-100 border-b border-gray-200"><td colspan="5" class="text-left font-bold text-primary pl-4 py-2">2. Tìm Kiếm</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="text-left pl-4">Đăng tuyển & Săn nguồn</td><td class="raci-cell-I">I</td><td class="raci-cell-R">R</td><td class="raci-cell-I">I</td><td></td></tr>
+                            <tr class="hover:bg-gray-50"><td class="text-left pl-4">Sàng lọc CV & Phone screen</td><td class="raci-cell-I">I</td><td class="raci-cell-R">R</td><td></td><td></td></tr>
+                            <!-- Step 3 -->
+                            <tr class="bg-gray-100 border-b border-gray-200"><td colspan="5" class="text-left font-bold text-primary pl-4 py-2">3. Phỏng Vấn</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="text-left pl-4">Phỏng vấn Vòng 1 (Chuyên môn)</td><td class="raci-cell-R">R</td><td class="raci-cell-C">C</td><td></td><td></td></tr>
+                            <tr class="hover:bg-gray-50"><td class="text-left pl-4">Phỏng vấn Vòng 2 (Văn hóa)</td><td class="raci-cell-C">C</td><td class="raci-cell-I">I</td><td class="raci-cell-R">R</td><td class="raci-cell-A">A</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="text-left pl-4">Thẩm tra lý lịch (Ref Check)</td><td class="raci-cell-I">I</td><td class="raci-cell-R">R</td><td class="raci-cell-A">A</td><td></td></tr>
+                            <!-- Step 4 -->
+                            <tr class="bg-gray-100 border-b border-gray-200"><td colspan="5" class="text-left font-bold text-primary pl-4 py-2">4. Offer</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="text-left pl-4">Đề xuất mức lương</td><td class="raci-cell-C">C</td><td class="raci-cell-R">R</td><td class="raci-cell-A">A</td><td class="raci-cell-C">C</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="text-left pl-4">Phê duyệt Offer</td><td class="raci-cell-I">I</td><td class="raci-cell-I">I</td><td class="raci-cell-R">R</td><td class="raci-cell-A">A</td></tr>
+                            <!-- Step 5 -->
+                            <tr class="bg-gray-100 border-b border-gray-200"><td colspan="5" class="text-left font-bold text-primary pl-4 py-2">5. Onboarding</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="text-left pl-4">Đào tạo định hướng (Orientation)</td><td class="raci-cell-I">I</td><td class="raci-cell-R">R</td><td class="raci-cell-A">A</td><td></td></tr>
+                            <tr class="hover:bg-gray-50"><td class="text-left pl-4">Kèm cặp chuyên môn (Coaching)</td><td class="raci-cell-R">R</td><td class="raci-cell-I">I</td><td class="raci-cell-I">I</td><td></td></tr>
+                            <tr class="hover:bg-gray-50"><td class="text-left pl-4">Đánh giá thử việc</td><td class="raci-cell-R">R</td><td class="raci-cell-C">C</td><td class="raci-cell-A">A</td><td class="raci-cell-I">I</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- VIEW 3: FORMS LIBRARY (Biểu mẫu) -->
+            <div id="view-forms" class="hidden animate-fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-2xl font-display font-bold text-primary">Kho Biểu Mẫu Quản Trị (Standardized Forms)</h2>
+                        <p class="text-sm text-gray-500 italic">Hệ thống biểu mẫu chuẩn hóa áp dụng cho toàn công ty.</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                    <!-- Form Card 1 -->
+                    <div class="bg-white p-6 rounded-xl shadow border border-gray-200 hover:border-secondary transition cursor-pointer group" onclick="openModal('modal-request')">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center text-2xl group-hover:bg-blue-600 group-hover:text-white transition"><i class="fas fa-file-invoice"></i></div>
+                            <span class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded">DOC-01</span>
+                        </div>
+                        <h3 class="font-bold text-lg text-primary">Phiếu Yêu Cầu Tuyển Dụng</h3>
+                        <p class="text-sm text-gray-500 mt-1">Kiểm soát định biên, ngân sách & trang thiết bị.</p>
+                        <div class="mt-4 pt-4 border-t border-gray-100 text-sm text-secondary font-bold group-hover:translate-x-1 transition-transform">Xem chi tiết <i class="fas fa-arrow-right ml-1"></i></div>
+                    </div>
+
+                    <!-- Form Card 2 -->
+                    <div class="bg-white p-6 rounded-xl shadow border border-gray-200 hover:border-secondary transition cursor-pointer group" onclick="openModal('modal-scorecard')">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center text-2xl group-hover:bg-orange-600 group-hover:text-white transition"><i class="fas fa-clipboard-check"></i></div>
+                            <span class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded">DOC-02</span>
+                        </div>
+                        <h3 class="font-bold text-lg text-primary">Phiếu Đánh Giá Phỏng Vấn</h3>
+                        <p class="text-sm text-gray-500 mt-1">Đánh giá năng lực theo khung năng lực (Competency Framework).</p>
+                        <div class="mt-4 pt-4 border-t border-gray-100 text-sm text-secondary font-bold group-hover:translate-x-1 transition-transform">Xem chi tiết <i class="fas fa-arrow-right ml-1"></i></div>
+                    </div>
+
+                    <!-- Form Card 3 -->
+                    <div class="bg-white p-6 rounded-xl shadow border border-gray-200 hover:border-secondary transition cursor-pointer group" onclick="openModal('modal-refcheck')">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center text-2xl group-hover:bg-purple-600 group-hover:text-white transition"><i class="fas fa-user-shield"></i></div>
+                            <span class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded">DOC-03</span>
+                        </div>
+                        <h3 class="font-bold text-lg text-primary">Phiếu Thẩm Tra Lý Lịch</h3>
+                        <p class="text-sm text-gray-500 mt-1">Xác thực Liêm chính (Integrity) & Hiệu suất quá khứ.</p>
+                        <div class="mt-4 pt-4 border-t border-gray-100 text-sm text-secondary font-bold group-hover:translate-x-1 transition-transform">Xem chi tiết <i class="fas fa-arrow-right ml-1"></i></div>
+                    </div>
+
+                    <!-- Form Card 4 -->
+                    <div class="bg-white p-6 rounded-xl shadow border border-gray-200 hover:border-secondary transition cursor-pointer group" onclick="openModal('modal-onboarding')">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-green-100 text-green-600 rounded-lg flex items-center justify-center text-2xl group-hover:bg-green-600 group-hover:text-white transition"><i class="fas fa-tasks"></i></div>
+                            <span class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded">DOC-04</span>
+                        </div>
+                        <h3 class="font-bold text-lg text-primary">Checklist Hội Nhập & Thử Việc</h3>
+                        <p class="text-sm text-gray-500 mt-1">Quản lý bàn giao tài sản & Lộ trình hòa nhập.</p>
+                        <div class="mt-4 pt-4 border-t border-gray-100 text-sm text-secondary font-bold group-hover:translate-x-1 transition-transform">Xem chi tiết <i class="fas fa-arrow-right ml-1"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL 1: HIRING REQUEST FORM -->
+    <div id="modal-request" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm" onclick="closeModal('modal-request')">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <div class="bg-primary text-white p-4 flex justify-between items-center sticky top-0 z-10">
+                <h3 class="font-bold text-lg"><i class="fas fa-file-invoice mr-2"></i>Phiếu Yêu Cầu Tuyển Dụng (Job Requisition Form)</h3>
+                <button onclick="closeModal('modal-request')" class="text-white hover:text-orange-300"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            
+            <!-- ROLE SWITCHER -->
+            <div class="flex justify-center p-4 bg-gray-50 border-b gap-4">
+                <button onclick="switchRole('request', 'sales')" id="btn-request-sales" class="role-switch-btn role-active"><i class="fas fa-chart-line mr-2"></i>Khối Sales</button>
+                <button onclick="switchRole('request', 'office')" id="btn-request-office" class="role-switch-btn role-inactive"><i class="fas fa-building mr-2"></i>Khối Office</button>
+            </div>
+
+            <div class="p-8 space-y-8">
+                <!-- A. General Info & Reporting Line -->
+                <div>
+                    <h4 class="text-primary font-bold border-b border-gray-200 pb-2 mb-4 uppercase text-sm">A. Thông tin vị trí & Tuyến báo cáo</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="col-span-2 md:col-span-1">
+                            <label class="form-label">Bộ phận (Department)</label>
+                            <input type="text" class="form-input bg-gray-50" id="req-dept" value="Phòng Kinh Doanh" disabled>
+                        </div>
+                        <div class="col-span-2 md:col-span-1">
+                            <label class="form-label">Vị trí (Position)</label>
+                            <input type="text" class="form-input font-bold" id="req-pos" value="Senior Sales Executive">
+                        </div>
+                        <div class="col-span-1">
+                            <label class="form-label">Số lượng (HC)</label>
+                            <input type="number" class="form-input" value="1">
+                        </div>
+                        <div class="col-span-1">
+                            <label class="form-label">Ngày cần (ETA)</label>
+                            <input type="date" class="form-input">
+                        </div>
+                        
+                        <!-- Reporting Line Added -->
+                        <div class="col-span-2">
+                            <label class="form-label text-blue-800">Báo cáo trực tiếp cho (Direct Report to):</label>
+                            <input type="text" class="form-input" placeholder="VD: Trưởng phòng Kinh doanh Miền Nam">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="form-label text-blue-800">Quản lý nhân viên (Subordinates):</label>
+                            <input type="text" class="form-input" placeholder="VD: 02 Sales Admin (nếu có)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- B. Specific Requirements (Role Based) -->
+                <div>
+                    <h4 class="text-primary font-bold border-b border-gray-200 pb-2 mb-4 uppercase text-sm">B. Yêu cầu năng lực chuyên sâu (Competency Framework)</h4>
+                    
+                    <!-- SALES SPECIFIC CONTEXT -->
+                    <div id="content-request-sales" class="block animate-fade-in bg-blue-50 p-4 rounded border border-blue-100 mb-6">
+                        <h5 class="text-blue-800 font-bold text-xs uppercase mb-3 border-b border-blue-200 pb-1">Bối cảnh Sales (Trading Context)</h5>
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="col-span-2 md:col-span-1">
+                                <label class="form-label text-blue-800 text-xs"><i class="fas fa-store mr-1"></i> Kênh bán hàng (Channel Focus)</label>
+                                <select class="form-input bg-white h-24 text-xs" multiple disabled>
+                                    <optgroup label="1. GT (Truyền thống)">
+                                        <option selected>Shop M&B (Mẹ và Bé)</option>
+                                        <option>Shop mỹ phẩm cao cấp</option>
+                                    </optgroup>
+                                    <optgroup label="2. MT (Hiện đại)">
+                                        <option>Chuỗi CVS, Siêu thị</option>
+                                    </optgroup>
+                                    <optgroup label="3. Key Account">
+                                        <option>Chuỗi nhà thuốc (Long Châu)</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="col-span-2 md:col-span-1">
+                                <label class="form-label text-blue-800 text-xs"><i class="fas fa-box-open mr-1"></i> Nhóm ngành hàng (Category Focus)</label>
+                                <div class="space-y-1 bg-white p-2 rounded border border-gray-200 h-24 overflow-y-auto text-xs">
+                                    <label class="flex items-center"><input type="checkbox" checked class="mr-2" disabled> Hóa mỹ phẩm (Personal Care)</label>
+                                    <label class="flex items-center"><input type="checkbox" class="mr-2" disabled> Thực phẩm chức năng</label>
+                                    <label class="flex items-center"><input type="checkbox" class="mr-2" disabled> Hàng Mẹ & Bé</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- OFFICE SPECIFIC CONTEXT -->
+                    <div id="content-request-office" class="hidden animate-fade-in bg-gray-50 p-4 rounded border border-gray-200 mb-6">
+                        <h5 class="text-gray-800 font-bold text-xs uppercase mb-3 border-b border-gray-300 pb-1">Bối cảnh Office (Context)</h5>
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="col-span-2 md:col-span-1">
+                                <label class="form-label text-gray-800 text-xs"><i class="fas fa-laptop-code mr-1"></i> Hệ thống (Systems)</label>
+                                <textarea class="form-input h-24 text-xs" disabled>MISA SME.NET, Excel (Advanced), ERP SAP/Odoo.</textarea>
+                            </div>
+                            <div class="col-span-2 md:col-span-1">
+                                <label class="form-label text-gray-800 text-xs"><i class="fas fa-sitemap mr-1"></i> Stakeholders</label>
+                                <textarea class="form-input h-24 text-xs" disabled>Báo cáo: Kế toán trưởng. Tương tác: Phòng Kinh doanh, Kho vận, Ngân hàng.</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DETAILED COMPETENCY GRID (NEW) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- 1. Experience -->
+                        <div class="bg-white p-3 rounded border border-gray-200 hover:shadow-md transition">
+                            <label class="form-label text-primary"><i class="fas fa-history mr-1"></i> 1. Kinh nghiệm (Experience)</label>
+                            <textarea class="form-input h-24 text-sm" id="req-exp" disabled>Tối thiểu 3-5 năm trong ngành FMCG/Mỹ phẩm. Ưu tiên ứng viên đã có kinh nghiệm làm việc với các hệ thống phân phối lớn (DKSH, Mesa).</textarea>
+                        </div>
+
+                        <!-- 2. Hard Skills -->
+                        <div class="bg-white p-3 rounded border border-gray-200 hover:shadow-md transition">
+                            <label class="form-label text-primary"><i class="fas fa-tools mr-1"></i> 2. Kỹ năng chuyên môn (Hard Skills)</label>
+                            <textarea class="form-input h-24 text-sm" id="req-hard" disabled>- Am hiểu địa bàn & Tuyến bán hàng (Route Planning).&#13;&#10;- Kỹ năng tính toán biên độ lợi nhuận (Margin) & Chiết khấu.&#13;&#10;- Kỹ năng trưng bày hàng hóa (Merchandising).</textarea>
+                        </div>
+
+                        <!-- 3. Soft Skills -->
+                        <div class="bg-white p-3 rounded border border-gray-200 hover:shadow-md transition">
+                            <label class="form-label text-primary"><i class="fas fa-brain mr-1"></i> 3. Kỹ năng mềm (Soft Skills)</label>
+                            <textarea class="form-input h-24 text-sm" id="req-soft" disabled>- Giao tiếp thuyết phục & Xây dựng mối quan hệ (Networking).&#13;&#10;- Tư duy giải quyết vấn đề (Problem Solving).&#13;&#10;- Khả năng chịu áp lực doanh số cao (Resilience).</textarea>
+                        </div>
+
+                        <!-- 4. Management -->
+                        <div class="bg-white p-3 rounded border border-gray-200 hover:shadow-md transition">
+                            <label class="form-label text-primary"><i class="fas fa-users-cog mr-1"></i> 4. Kỹ năng quản lý (Management)</label>
+                            <textarea class="form-input h-24 text-sm" id="req-manage" disabled>- Có khả năng đào tạo & kèm cặp nhân viên mới (Coaching).&#13;&#10;- Kỹ năng lập kế hoạch kinh doanh theo tháng/quý.&#13;&#10;- Quản lý đội nhóm 3-5 người (Team leader).</textarea>
+                        </div>
+
+                        <!-- 5. Achievements -->
+                        <div class="bg-white p-3 rounded border border-gray-200 hover:shadow-md transition">
+                            <label class="form-label text-primary"><i class="fas fa-trophy mr-1"></i> 5. Thành tích bắt buộc (Track Record)</label>
+                            <textarea class="form-input h-24 text-sm" id="req-achieve" disabled>- Đã từng đạt Top Sales hoặc hoàn thành >100% KPI trong 2 năm liên tiếp.&#13;&#10;- Có bằng chứng về việc mở rộng mạng lưới khách hàng thành công.</textarea>
+                        </div>
+
+                        <!-- 6. Education/Certificates -->
+                        <div class="bg-white p-3 rounded border border-gray-200 hover:shadow-md transition">
+                            <label class="form-label text-primary"><i class="fas fa-graduation-cap mr-1"></i> 6. Bằng cấp & Chứng chỉ (Education)</label>
+                            <textarea class="form-input h-24 text-sm" id="req-edu" disabled>- Tốt nghiệp Đại học/Cao đẳng chuyên ngành QTKD/Marketing.&#13;&#10;- Ưu tiên chứng chỉ đào tạo Sales chuyên nghiệp.&#13;&#10;- Tiếng Anh giao tiếp cơ bản (đọc hiểu tài liệu sản phẩm).</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- C. Compensation & Working Conditions -->
+                <div>
+                    <h4 class="text-primary font-bold border-b border-gray-200 pb-2 mb-4 uppercase text-sm">C. Chế độ Lương & Làm việc (C&B Framework)</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Salary Breakdown -->
+                        <div class="bg-green-50 p-4 rounded border border-green-100">
+                            <label class="form-label text-green-800 font-bold mb-2"><i class="fas fa-coins mr-1"></i> Thu nhập dự kiến (Gross)</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-xs text-gray-500 block mb-1">Lương cứng (Base)</label>
+                                    <input type="text" class="form-input bg-white" placeholder="15.000.000">
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500 block mb-1">Thưởng/KPI (Incentive)</label>
+                                    <input type="text" class="form-input bg-white" placeholder="5.000.000++">
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="text-xs text-gray-500 block mb-1">Lương thử việc (Probation)</label>
+                                    <div class="flex gap-4 mt-1">
+                                        <label class="flex items-center text-sm"><input type="radio" name="probation" checked class="mr-2"> 85% Lương cứng</label>
+                                        <label class="flex items-center text-sm"><input type="radio" name="probation" class="mr-2"> 100% Lương cứng</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Working Conditions -->
+                        <div class="bg-gray-50 p-4 rounded border border-gray-200">
+                            <label class="form-label text-gray-700 font-bold mb-2"><i class="fas fa-briefcase mr-1"></i> Điều kiện làm việc</label>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="text-xs text-gray-500 block mb-1">Thời gian làm việc</label>
+                                    <select class="form-input bg-white text-sm">
+                                        <option>Hành chính (T2 - T6 & Sáng T7)</option>
+                                        <option>Linh hoạt / Theo ca (Shift)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500 block mb-1">Tần suất đi công tác (Travel Frequency)</label>
+                                    <select class="form-input bg-white text-sm">
+                                        <option>Không yêu cầu</option>
+                                        <option>Thỉnh thoảng (20% thời gian)</option>
+                                        <option selected>Thường xuyên (50% - Đi tỉnh)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- D. Recruitment Strategy (Target) -->
+                <div>
+                    <h4 class="text-primary font-bold border-b border-gray-200 pb-2 mb-4 uppercase text-sm">D. Nguồn ứng viên mục tiêu (Target Source)</h4>
+                    <div class="bg-yellow-50 p-4 rounded border border-yellow-100">
+                        <label class="form-label text-yellow-800">Các công ty đối thủ cần "săn" người (Competitor List):</label>
+                        <textarea class="form-input h-20 bg-white" placeholder="VD: Nhân sự đang làm tại DKSH, Mesa, Phú Thái, hoặc các công ty phân phối hàng tiêu dùng trong khu vực..."></textarea>
+                        <p class="text-[10px] text-gray-500 mt-1 italic">*Giúp HR định hướng nguồn tìm kiếm nhanh chóng.</p>
+                    </div>
+                </div>
+
+                <!-- E. Equipment & Resources -->
+                <div>
+                    <h4 class="text-primary font-bold border-b border-gray-200 pb-2 mb-4 uppercase text-sm">E. Yêu cầu trang thiết bị (Equipment Request)</h4>
+                    <div class="grid grid-cols-3 gap-4">
+                        <label class="flex items-center p-3 border rounded bg-gray-50 cursor-pointer hover:bg-gray-100">
+                            <input type="checkbox" checked class="mr-2"> Laptop (Tiêu chuẩn)
+                        </label>
+                        <label class="flex items-center p-3 border rounded bg-gray-50 cursor-pointer hover:bg-gray-100">
+                            <input type="checkbox" class="mr-2"> Màn hình rời (Monitor)
+                        </label>
+                        <label class="flex items-center p-3 border rounded bg-gray-50 cursor-pointer hover:bg-gray-100">
+                            <input type="checkbox" class="mr-2"> Sim điện thoại / Phụ cấp
+                        </label>
+                        <label class="flex items-center p-3 border rounded bg-gray-50 cursor-pointer hover:bg-gray-100">
+                            <input type="checkbox" class="mr-2"> Tài khoản ERP/CRM
+                        </label>
+                        <label class="flex items-center p-3 border rounded bg-gray-50 cursor-pointer hover:bg-gray-100">
+                            <input type="checkbox" class="mr-2"> Email Công ty
+                        </label>
+                        <label class="flex items-center p-3 border rounded bg-gray-50 cursor-pointer hover:bg-gray-100">
+                            <input type="checkbox" class="mr-2"> Card visit
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Signatures -->
+                <div class="grid grid-cols-3 gap-8 mt-8 pt-8 border-t border-gray-200">
+                    <div class="text-center">
+                        <p class="text-xs uppercase font-bold text-gray-500 mb-8">Người Đề Xuất</p>
+                        <div class="h-10 border-b border-dashed border-gray-300"></div>
+                        <p class="mt-2 font-bold text-sm">Manager</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-xs uppercase font-bold text-gray-500 mb-8">Kiểm soát Ngân sách</p>
+                        <div class="h-10 border-b border-dashed border-gray-300"></div>
+                        <p class="mt-2 font-bold text-sm">HR Manager</p>
+                    </div>
+                    <div class="text-center relative">
+                        <p class="text-xs uppercase font-bold text-gray-500 mb-8">Phê Duyệt</p>
+                        <!-- Digital Stamp -->
+                        <div class="absolute top-6 left-1/2 transform -translate-x-1/2 border-4 border-red-600 text-red-600 px-4 py-1 -rotate-12 rounded opacity-50 font-bold text-lg uppercase tracking-widest pointer-events-none" style="border-style: double;">PENDING</div>
+                        <div class="h-10 border-b border-dashed border-gray-300"></div>
+                        <p class="mt-2 font-bold text-sm">Director</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: SCORECARD -->
+    <div id="modal-scorecard" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm" onclick="closeModal('modal-scorecard')">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <div class="bg-secondary text-white p-4 flex justify-between items-center sticky top-0 z-10">
+                <h3 class="font-bold text-lg"><i class="fas fa-clipboard-check mr-2"></i>Phiếu Đánh Giá Phỏng Vấn (Competency Scorecard)</h3>
+                <button onclick="closeModal('modal-scorecard')" class="text-white hover:text-blue-100"><i class="fas fa-times text-xl"></i></button>
+            </div>
+
+            <!-- ROLE SWITCHER -->
+            <div class="flex justify-center p-4 bg-gray-50 border-b gap-4">
+                <button onclick="switchRole('score', 'sales')" id="btn-score-sales" class="role-switch-btn role-active"><i class="fas fa-chart-line mr-2"></i>Sales</button>
+                <button onclick="switchRole('score', 'office')" id="btn-score-office" class="role-switch-btn role-inactive"><i class="fas fa-building mr-2"></i>Office</button>
+            </div>
+
+            <div class="p-8 space-y-6">
+                <!-- Info Header -->
+                <div class="bg-orange-50 p-4 rounded border border-orange-100 flex flex-wrap gap-6 text-sm" id="score-header">
+                    <div><strong>Ứng viên:</strong> Lê Thị Thu H.</div>
+                    <div><strong>Vị trí:</strong> Sales Executive</div>
+                    <div><strong>Ngày PV:</strong> 04/12/2025</div>
+                    <div><strong>Vòng:</strong> 1 (Chuyên môn)</div>
+                </div>
+
+                <!-- Guide -->
+                <div class="text-xs text-gray-500 italic border-l-4 border-gray-300 pl-3 py-1 mb-4">
+                    *Thang điểm: 1 (Kém) | 2 (Dưới TB) | 3 (Đạt) | 4 (Tốt) | 5 (Xuất sắc)
+                </div>
+
+                <!-- COMPETENCY ASSESSMENT GRID -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- 1. Experience -->
+                    <div class="bg-white p-4 rounded border border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="font-bold text-primary text-sm"><i class="fas fa-history mr-1"></i> 1. Kinh nghiệm (Experience)</label>
+                            <div class="flex gap-1"><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">1</span><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">2</span><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">3</span><span class="w-6 h-6 rounded bg-secondary text-white font-bold flex items-center justify-center text-xs">4</span><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">5</span></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-2" id="label-score-exp">Độ phù hợp về ngành hàng & thâm niên.</p>
+                        <textarea class="form-input h-16 text-sm" id="score-exp" placeholder="Nhận xét..."></textarea>
+                    </div>
+
+                    <!-- 2. Hard Skills -->
+                    <div class="bg-white p-4 rounded border border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="font-bold text-primary text-sm"><i class="fas fa-tools mr-1"></i> 2. Kỹ năng chuyên môn (Hard Skills)</label>
+                            <div class="flex gap-1"><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">1</span><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">2</span><span class="w-6 h-6 rounded bg-secondary text-white font-bold flex items-center justify-center text-xs">3</span><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">4</span><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">5</span></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-2" id="label-score-hard">Kiến thức nghiệp vụ cụ thể.</p>
+                        <textarea class="form-input h-16 text-sm" id="score-hard" placeholder="Nhận xét..."></textarea>
+                    </div>
+
+                    <!-- 3. Soft Skills -->
+                    <div class="bg-white p-4 rounded border border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="font-bold text-primary text-sm"><i class="fas fa-brain mr-1"></i> 3. Kỹ năng mềm (Soft Skills)</label>
+                            <div class="flex gap-1"><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">1</span><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">2</span><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">3</span><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">4</span><span class="w-6 h-6 rounded bg-secondary text-white font-bold flex items-center justify-center text-xs">5</span></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-2" id="label-score-soft">Tư duy & Thái độ.</p>
+                        <textarea class="form-input h-16 text-sm" id="score-soft" placeholder="Nhận xét..."></textarea>
+                    </div>
+
+                    <!-- 4. Management -->
+                    <div class="bg-white p-4 rounded border border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="font-bold text-primary text-sm"><i class="fas fa-users-cog mr-1"></i> 4. Kỹ năng quản lý (Management)</label>
+                            <div class="flex gap-1"><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">1</span><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">2</span><span class="w-6 h-6 rounded bg-secondary text-white font-bold flex items-center justify-center text-xs">3</span><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">4</span><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">5</span></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-2" id="label-score-manage">Khả năng lãnh đạo/tự chủ.</p>
+                        <textarea class="form-input h-16 text-sm" id="score-manage" placeholder="Nhận xét..."></textarea>
+                    </div>
+
+                    <!-- 5. Achievements -->
+                    <div class="bg-white p-4 rounded border border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="font-bold text-primary text-sm"><i class="fas fa-trophy mr-1"></i> 5. Thành tích (Track Record)</label>
+                            <div class="flex gap-1"><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">1</span><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">2</span><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">3</span><span class="w-6 h-6 rounded bg-secondary text-white font-bold flex items-center justify-center text-xs">4</span><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">5</span></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-2" id="label-score-achieve">Kết quả thực tế trong quá khứ.</p>
+                        <textarea class="form-input h-16 text-sm" id="score-achieve" placeholder="Nhận xét..."></textarea>
+                    </div>
+
+                    <!-- 6. Education -->
+                    <div class="bg-white p-4 rounded border border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="font-bold text-primary text-sm"><i class="fas fa-graduation-cap mr-1"></i> 6. Bằng cấp (Education)</label>
+                            <div class="flex gap-1"><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">1</span><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">2</span><span class="w-6 h-6 rounded bg-secondary text-white font-bold flex items-center justify-center text-xs">3</span><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">4</span><span class="w-6 h-6 rounded border flex items-center justify-center text-xs cursor-pointer hover:bg-gray-100">5</span></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-2" id="label-score-edu">Trình độ học vấn & chứng chỉ.</p>
+                        <textarea class="form-input h-16 text-sm" id="score-edu" placeholder="Nhận xét..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Culture Fit (Common) -->
+                <div class="pt-4 border-t border-gray-200">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="font-bold text-primary">7. Phù hợp văn hóa & Động lực (Culture Fit)</label>
+                        <div class="flex gap-1"><span class="w-8 h-8 rounded border flex items-center justify-center cursor-pointer hover:bg-gray-100">1</span><span class="w-8 h-8 rounded border flex items-center justify-center cursor-pointer hover:bg-gray-100">2</span><span class="w-8 h-8 rounded border flex items-center justify-center cursor-pointer hover:bg-gray-100">3</span><span class="w-8 h-8 rounded border flex items-center justify-center cursor-pointer hover:bg-gray-100">4</span><span class="w-8 h-8 rounded bg-secondary text-white font-bold flex items-center justify-center">5</span></div>
+                    </div>
+                    <textarea class="form-input h-20 text-sm" placeholder="Đánh giá về thái độ, sự trung thực, mong muốn gắn bó lâu dài..."></textarea>
+                </div>
+
+                <!-- Decision -->
+                <div class="bg-gray-100 p-6 rounded-lg mt-4">
+                    <label class="block font-bold text-lg text-primary mb-3">Quyết định tuyển dụng (Final Recommendation):</label>
+                    <div class="flex gap-4">
+                        <label class="flex-1 border-2 border-red-200 bg-white p-3 rounded cursor-pointer hover:bg-red-50 text-center">
+                            <input type="radio" name="decision" class="mb-1 block mx-auto">
+                            <span class="font-bold text-red-600">Từ chối (Reject)</span>
+                        </label>
+                        <label class="flex-1 border-2 border-yellow-200 bg-white p-3 rounded cursor-pointer hover:bg-yellow-50 text-center">
+                            <input type="radio" name="decision" class="mb-1 block mx-auto">
+                            <span class="font-bold text-yellow-600">Dự phòng (Hold)</span>
+                        </label>
+                        <label class="flex-1 border-2 border-green-200 bg-white p-3 rounded cursor-pointer hover:bg-green-50 text-center shadow-md ring-2 ring-green-500 ring-opacity-50">
+                            <input type="radio" name="decision" checked class="mb-1 block mx-auto">
+                            <span class="font-bold text-green-700">Tuyển dụng (Hire)</span>
+                        </label>
+                    </div>
+                    <div class="mt-4">
+                        <label class="form-label">Mức lương đề xuất (nếu tuyển):</label>
+                        <input type="text" class="form-input w-1/2" placeholder="VD: 18.000.000 VND Gross">
+                    </div>
+                </div>
+                
+                <!-- Signature -->
+                <div class="mt-4 text-right">
+                    <p class="text-xs text-gray-500 italic mb-2">Người phỏng vấn ký tên xác nhận chịu trách nhiệm về đánh giá này.</p>
+                    <button class="bg-primary text-white px-6 py-2 rounded hover:bg-blue-900"><i class="fas fa-file-signature mr-2"></i>Ký & Lưu Phiếu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: REFERENCE CHECK -->
+    <div id="modal-refcheck" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm" onclick="closeModal('modal-refcheck')">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <div class="bg-purple-600 text-white p-4 flex justify-between items-center sticky top-0 z-10">
+                <h3 class="font-bold text-lg"><i class="fas fa-user-shield mr-2"></i>Phiếu Thẩm Tra Lý Lịch (Reference Check)</h3>
+                <button onclick="closeModal('modal-refcheck')" class="text-white hover:text-purple-200"><i class="fas fa-times text-xl"></i></button>
+            </div>
+
+            <!-- ROLE SWITCHER -->
+            <div class="flex justify-center p-4 bg-gray-50 border-b gap-4">
+                <button onclick="switchRole('refcheck', 'sales')" id="btn-refcheck-sales" class="role-switch-btn role-active"><i class="fas fa-chart-line mr-2"></i>Sales Check</button>
+                <button onclick="switchRole('refcheck', 'office')" id="btn-refcheck-office" class="role-switch-btn role-inactive"><i class="fas fa-building mr-2"></i>Office Check</button>
+            </div>
+
+            <div class="p-8 space-y-6">
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                    <p class="text-sm text-yellow-800"><strong>Lưu ý quan trọng:</strong> Chỉ gọi điện khi ứng viên đã đồng ý. Tuyệt đối bảo mật thông tin cuộc gọi.</p>
+                </div>
+                
+                <!-- Verification Info -->
+                <div class="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded border border-gray-200">
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase">Người tham chiếu (Referee)</label>
+                        <input type="text" class="form-input mt-1" placeholder="Họ tên & Chức vụ">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase">Mối quan hệ</label>
+                        <select class="form-input mt-1">
+                            <option>Quản lý trực tiếp (Direct Manager)</option>
+                            <option>Đồng nghiệp (Colleague)</option>
+                            <option>Nhân sự (HR)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <label class="form-label text-purple-800 font-bold">1. Xác thực thông tin cơ bản:</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" class="form-input text-sm" placeholder="Thời gian làm việc?">
+                            <input type="text" class="form-input text-sm" placeholder="Chức vụ cuối cùng?">
+                            <input type="text" class="form-input text-sm col-span-2" placeholder="Lý do nghỉ việc (So sánh với lời ứng viên)?">
+                        </div>
+                    </div>
+
+                    <!-- SALES SPECIFIC QUESTIONS -->
+                    <div id="content-refcheck-sales" class="block animate-fade-in space-y-4">
+                        <div class="bg-purple-50 p-3 rounded border border-purple-100">
+                            <label class="form-label text-purple-800 font-bold">2. (Sales) Hiệu suất & Doanh số:</label>
+                            <p class="text-xs text-gray-600 mb-1 italic">Bạn ấy có thường xuyên đạt KPI không? Điểm mạnh nhất khi bán hàng là gì?</p>
+                            <textarea class="form-input h-20"></textarea>
+                        </div>
+                        <div class="bg-red-50 p-3 rounded border border-red-100">
+                            <label class="form-label text-red-800 font-bold"><i class="fas fa-exclamation-circle mr-1"></i>3. Vấn đề Tài chính & Công nợ (Integrity):</label>
+                            <p class="text-xs text-gray-600 mb-1 italic">Đã bao giờ xảy ra sự cố về tiền hàng, công nợ hay vi phạm chính sách bán hàng chưa?</p>
+                            <textarea class="form-input h-20"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- OFFICE SPECIFIC QUESTIONS -->
+                    <div id="content-refcheck-office" class="hidden animate-fade-in space-y-4">
+                        <div class="bg-gray-50 p-3 rounded border border-gray-300">
+                            <label class="form-label text-gray-800 font-bold">2. (Office) Chất lượng công việc & Deadline:</label>
+                            <p class="text-xs text-gray-600 mb-1 italic">Mức độ chính xác của báo cáo? Có hay trễ hạn không?</p>
+                            <textarea class="form-input h-20"></textarea>
+                        </div>
+                        <div class="bg-red-50 p-3 rounded border border-red-100">
+                            <label class="form-label text-red-800 font-bold"><i class="fas fa-lock mr-1"></i>3. Bảo mật & Thái độ:</label>
+                            <p class="text-xs text-gray-600 mb-1 italic">Có từng vi phạm quy chế bảo mật dữ liệu không? Thái độ hợp tác với các phòng ban khác?</p>
+                            <textarea class="form-input h-20"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- The Golden Question -->
+                    <div class="bg-white border-2 border-purple-600 p-4 rounded shadow-sm">
+                        <label class="form-label text-purple-800 font-bold text-lg mb-2">4. Câu hỏi quyết định: "Nếu có cơ hội, anh/chị có tuyển lại bạn ấy không?"</label>
+                        <div class="flex gap-6">
+                            <label class="flex items-center font-bold text-green-600 cursor-pointer"><input type="radio" name="rehire" class="mr-2 w-5 h-5"> CÓ, CHẮC CHẮN.</label>
+                            <label class="flex items-center text-gray-600 cursor-pointer"><input type="radio" name="rehire" class="mr-2 w-5 h-5"> Có thể (Cân nhắc).</label>
+                            <label class="flex items-center font-bold text-red-600 cursor-pointer"><input type="radio" name="rehire" class="mr-2 w-5 h-5"> KHÔNG BAO GIỜ.</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: ONBOARDING CHECKLIST -->
+    <div id="modal-onboarding" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm" onclick="closeModal('modal-onboarding')">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <div class="bg-green-600 text-white p-4 flex justify-between items-center sticky top-0 z-10">
+                <h3 class="font-bold text-lg"><i class="fas fa-tasks mr-2"></i>Checklist Hội Nhập & Thử Việc (60 Days)</h3>
+                <button onclick="closeModal('modal-onboarding')" class="text-white hover:text-green-200"><i class="fas fa-times text-xl"></i></button>
+            </div>
+
+            <!-- ROLE SWITCHER -->
+            <div class="flex justify-center p-4 bg-gray-50 border-b gap-4">
+                <button onclick="switchRole('onboard', 'sales')" id="btn-onboard-sales" class="role-switch-btn role-active"><i class="fas fa-chart-line mr-2"></i>Lộ trình Sales</button>
+                <button onclick="switchRole('onboard', 'office')" id="btn-onboard-office" class="role-switch-btn role-inactive"><i class="fas fa-building mr-2"></i>Lộ trình Office</button>
+            </div>
+
+            <div class="p-8 space-y-8">
+                <!-- Phase 0: Preparation -->
+                <div>
+                    <h4 class="text-gray-500 font-bold border-b border-gray-200 pb-2 mb-3 uppercase text-sm">Giai đoạn 0: Chuẩn bị (Trước ngày đi làm)</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="flex items-center text-sm p-2 border rounded"><input type="checkbox" class="mr-2"> Setup Email & Group Zalo</label>
+                        <label class="flex items-center text-sm p-2 border rounded"><input type="checkbox" class="mr-2"> Chuẩn bị Laptop/PC</label>
+                        <label class="flex items-center text-sm p-2 border rounded"><input type="checkbox" class="mr-2"> Chỗ ngồi & VPP</label>
+                        <label class="flex items-center text-sm p-2 border rounded bg-green-50 border-green-200"><input type="checkbox" class="mr-2"> <strong>Phân công Buddy (Người hướng dẫn)</strong></label>
+                    </div>
+                </div>
+
+                <!-- SALES ONBOARDING -->
+                <div id="content-onboard-sales" class="block animate-fade-in space-y-6">
+                    <div>
+                        <h4 class="text-green-700 font-bold border-b border-green-200 pb-2 mb-2 uppercase text-sm">Tuần 1: Nhập cuộc (Immersion)</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center justify-between text-sm bg-gray-50 p-2 rounded"><span class="flex items-center"><input type="checkbox" class="mr-2"> Học thuộc Danh mục sản phẩm (SKU)</span><span class="text-xs text-gray-500">Người đào tạo: Trainer</span></label>
+                            <label class="flex items-center justify-between text-sm bg-gray-50 p-2 rounded"><span class="flex items-center"><input type="checkbox" class="mr-2"> Đi thị trường (Riding) cùng Sales cũ</span><span class="text-xs text-gray-500">Buddy</span></label>
+                            <label class="flex items-center justify-between text-sm bg-gray-50 p-2 rounded border border-red-200"><span class="flex items-center font-bold text-red-600"><input type="checkbox" class="mr-2"> Thi kiểm tra sản phẩm (Roleplay)</span><span class="text-xs font-bold text-red-600">KPI: > 8/10 điểm</span></label>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-orange-700 font-bold border-b border-orange-200 pb-2 mb-2 uppercase text-sm">Tháng 1-2: Thử thách (Action)</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center justify-between text-sm bg-gray-50 p-2 rounded"><span class="flex items-center"><input type="checkbox" class="mr-2"> Nhận bàn giao Tuyến bán hàng (Route)</span><span class="text-xs text-gray-500">Sales Admin</span></label>
+                            <label class="flex items-center justify-between text-sm bg-gray-50 p-2 rounded"><span class="flex items-center"><input type="checkbox" class="mr-2"> Thực hiện viếng thăm 20 khách/ngày</span><span class="text-xs text-gray-500">Giám sát qua GPS</span></label>
+                            <div class="bg-orange-50 p-3 rounded border border-orange-200">
+                                <p class="text-sm font-bold text-orange-800 mb-1">Mục tiêu bắt buộc (Mandatory KPIs):</p>
+                                <ul class="list-disc list-inside text-xs text-orange-900">
+                                    <li>Đạt 80% doanh số cam kết.</li>
+                                    <li>Mở thành công 3-5 Đại lý mới.</li>
+                                    <li>Không có nợ xấu phát sinh.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OFFICE ONBOARDING -->
+                <div id="content-onboard-office" class="hidden animate-fade-in space-y-6">
+                    <div>
+                        <h4 class="text-green-700 font-bold border-b border-green-200 pb-2 mb-2 uppercase text-sm">Tuần 1: Hội nhập & Quy trình</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center justify-between text-sm bg-gray-50 p-2 rounded"><span class="flex items-center"><input type="checkbox" class="mr-2"> Đăng nhập & Đổi pass Hệ thống (ERP, CRM)</span><span class="text-xs text-gray-500">IT</span></label>
+                            <label class="flex items-center justify-between text-sm bg-gray-50 p-2 rounded"><span class="flex items-center"><input type="checkbox" class="mr-2"> Đọc hiểu Sổ tay nhân viên & SOP Phòng ban</span><span class="text-xs text-gray-500">Buddy</span></label>
+                            <label class="flex items-center justify-between text-sm bg-gray-50 p-2 rounded"><span class="flex items-center"><input type="checkbox" class="mr-2"> Gặp gỡ các Trưởng bộ phận liên quan</span><span class="text-xs text-gray-500">Manager</span></label>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-orange-700 font-bold border-b border-orange-200 pb-2 mb-2 uppercase text-sm">Tháng 1-2: Tiếp nhận & Tự chủ</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center justify-between text-sm bg-gray-50 p-2 rounded"><span class="flex items-center"><input type="checkbox" class="mr-2"> Tiếp nhận bàn giao file/chứng từ từ người cũ</span><span class="text-xs text-gray-500">Biên bản bàn giao</span></label>
+                            <label class="flex items-center justify-between text-sm bg-gray-50 p-2 rounded"><span class="flex items-center"><input type="checkbox" class="mr-2"> Tự thực hiện báo cáo tuần đầu tiên</span><span class="text-xs text-gray-500">Manager duyệt</span></label>
+                            <div class="bg-orange-50 p-3 rounded border border-orange-200">
+                                <p class="text-sm font-bold text-orange-800 mb-1">Mục tiêu bắt buộc (Mandatory KPIs):</p>
+                                <ul class="list-disc list-inside text-xs text-orange-900">
+                                    <li>Không sai sót số liệu trọng yếu.</li>
+                                    <li>Hoàn thành báo cáo đúng deadline (100%).</li>
+                                    <li>Hòa nhập tốt với văn hóa team.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sign-off -->
+                <div class="mt-8 pt-4 border-t border-gray-200 flex justify-between items-end">
+                    <div class="text-sm">
+                        <p class="font-bold">Nhân sự mới (New Hire)</p>
+                        <p class="text-xs text-gray-400 mt-8">(Ký tên)</p>
+                    </div>
+                    <div class="text-sm text-right">
+                        <p class="font-bold">Người hướng dẫn (Buddy/Manager)</p>
+                        <p class="text-xs text-gray-400 mt-8">(Ký tên & Xác nhận kết quả)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Logic Switch Role
+        function switchRole(modalType, role) {
+            // Update Buttons
+            const btnSales = document.getElementById(`btn-${modalType}-sales`);
+            const btnOffice = document.getElementById(`btn-${modalType}-office`);
+            
+            if (btnSales && btnOffice) {
+                btnSales.className = role === 'sales' ? 'role-switch-btn role-active' : 'role-switch-btn role-inactive';
+                btnOffice.className = role === 'office' ? 'role-switch-btn role-active' : 'role-switch-btn role-inactive';
+            }
+
+            // Toggle Content (Existing logic for Request/Refcheck/Onboard)
+            const contentSales = document.getElementById(`content-${modalType}-sales`);
+            const contentOffice = document.getElementById(`content-${modalType}-office`);
+            if (contentSales) contentSales.className = role === 'sales' ? 'block animate-fade-in' : 'hidden';
+            if (contentOffice) contentOffice.className = role === 'office' ? 'block animate-fade-in' : 'hidden';
+
+            // --- SCORECARD DETAILED POPULATION ---
+            if (modalType === 'score') {
+                const header = document.getElementById('score-header');
+                const labelExp = document.getElementById('label-score-exp');
+                const labelHard = document.getElementById('label-score-hard');
+                const labelSoft = document.getElementById('label-score-soft');
+                const labelManage = document.getElementById('label-score-manage');
+                const labelAchieve = document.getElementById('label-score-achieve');
+                const labelEdu = document.getElementById('label-score-edu');
+
+                const valExp = document.getElementById('score-exp');
+                const valHard = document.getElementById('score-hard');
+                const valSoft = document.getElementById('score-soft');
+                const valManage = document.getElementById('score-manage');
+                const valAchieve = document.getElementById('score-achieve');
+                const valEdu = document.getElementById('score-edu');
+
+                if (header) {
+                    if (role === 'sales') {
+                        header.innerHTML = '<div><strong>Ứng viên:</strong> Lê Thị Thu H.</div><div><strong>Vị trí:</strong> Sales Executive</div><div><strong>Ngày PV:</strong> 04/12/2025</div>';
+                        
+                        labelExp.innerHTML = "Kinh nghiệm làm việc với hệ thống phân phối/đại lý.";
+                        valExp.value = "Có 3 năm kinh nghiệm làm Sales GT tại công ty đối thủ. Hiểu rõ địa bàn.";
+
+                        labelHard.innerHTML = "Kỹ năng: Lập tuyến bán hàng, Tính chiết khấu, Chốt đơn.";
+                        valHard.value = "Rất tốt. Trả lời tình huống đi tuyến và xử lý từ chối giá cao rất mượt.";
+
+                        labelSoft.innerHTML = "Giao tiếp, Thuyết phục, Chịu áp lực doanh số.";
+                        valSoft.value = "Năng động, hoạt ngôn. Có vẻ chịu được áp lực cao.";
+
+                        labelManage.innerHTML = "Khả năng tự quản lý địa bàn & công nợ.";
+                        valManage.value = "Tự chủ tốt. Biết cách quản lý công nợ không để quá hạn.";
+
+                        labelAchieve.innerHTML = "Thành tích doanh số quá khứ (Top Sales?).";
+                        valAchieve.value = "Đạt Top Sales quý 3/2023. Tăng trưởng doanh số vùng 20%.";
+
+                        labelEdu.innerHTML = "Bằng cấp QTKD/Marketing.";
+                        valEdu.value = "Đại học Thương Mại. Có chứng chỉ kỹ năng bán hàng.";
+                    } else {
+                        header.innerHTML = '<div><strong>Ứng viên:</strong> Phạm Minh T.</div><div><strong>Vị trí:</strong> Kế toán viên</div><div><strong>Ngày PV:</strong> 04/12/2025</div>';
+                        
+                        labelExp.innerHTML = "Kinh nghiệm hạch toán, báo cáo thuế/nội bộ.";
+                        valExp.value = "5 năm kinh nghiệm kế toán tổng hợp. Đã từng quyết toán thuế 2 lần.";
+
+                        labelHard.innerHTML = "Thành thạo MISA, Excel (Pivot, Vlookup), Luật kế toán.";
+                        valHard.value = "Excel xuất sắc. Am hiểu luật thuế hiện hành.";
+
+                        labelSoft.innerHTML = "Cẩn trọng, Tỉ mỉ, Trung thực, Bảo mật.";
+                        valSoft.value = "Rất điềm đạm, cẩn thận. Trả lời chắc chắn.";
+
+                        labelManage.innerHTML = "Kỹ năng sắp xếp chứng từ & Quản lý thời gian.";
+                        valManage.value = "Hệ thống lưu trữ khoa học. Làm việc có kế hoạch.";
+
+                        labelAchieve.innerHTML = "Thành tích: Không sai sót số liệu, Tối ưu quy trình.";
+                        valAchieve.value = "Đã từng phát hiện sai sót trọng yếu giúp công ty tránh bị phạt thuế.";
+
+                        labelEdu.innerHTML = "Bằng cấp Tài chính Kế toán/Chứng chỉ CPA.";
+                        valEdu.value = "Đại học Kinh tế Quốc dân. Có chứng chỉ Kế toán trưởng.";
+                    }
+                }
+            }
+            
+            // ... (Existing logic for Request/Refcheck remains the same)
+            else if (modalType === 'request') {
+                const dept = document.getElementById('req-dept');
+                const pos = document.getElementById('req-pos');
+                // New Fields
+                const exp = document.getElementById('req-exp');
+                const hard = document.getElementById('req-hard');
+                const soft = document.getElementById('req-soft');
+                const manage = document.getElementById('req-manage');
+                const achieve = document.getElementById('req-achieve');
+                const edu = document.getElementById('req-edu');
+                
+                if (dept && pos && exp) {
+                    if (role === 'sales') {
+                        dept.value = 'Phòng Kinh Doanh (Sales)';
+                        pos.value = 'Senior Sales Executive';
+                        
+                        exp.value = 'Tối thiểu 3-5 năm trong ngành FMCG/Mỹ phẩm. Ưu tiên ứng viên đã có kinh nghiệm làm việc với các hệ thống phân phối lớn (DKSH, Mesa).';
+                        hard.value = '- Am hiểu địa bàn & Tuyến bán hàng (Route Planning).\n- Kỹ năng tính toán biên độ lợi nhuận (Margin) & Chiết khấu.\n- Kỹ năng trưng bày hàng hóa (Merchandising).';
+                        soft.value = '- Giao tiếp thuyết phục & Xây dựng mối quan hệ (Networking).\n- Tư duy giải quyết vấn đề (Problem Solving).\n- Khả năng chịu áp lực doanh số cao (Resilience).';
+                        manage.value = '- Có khả năng đào tạo & kèm cặp nhân viên mới (Coaching).\n- Kỹ năng lập kế hoạch kinh doanh theo tháng/quý.\n- Quản lý đội nhóm 3-5 người (Team leader).';
+                        achieve.value = '- Đã từng đạt Top Sales hoặc hoàn thành >100% KPI trong 2 năm liên tiếp.\n- Có bằng chứng về việc mở rộng mạng lưới khách hàng thành công.';
+                        edu.value = '- Tốt nghiệp Đại học/Cao đẳng chuyên ngành QTKD/Marketing.\n- Ưu tiên chứng chỉ đào tạo Sales chuyên nghiệp.';
+                    } else {
+                        dept.value = 'Phòng Kế Toán / Hành Chính';
+                        pos.value = 'Kế toán Tổng hợp / Admin';
+                        
+                        exp.value = 'Tối thiểu 3 năm kinh nghiệm ở vị trí tương đương. Đã từng tham gia quyết toán thuế là một lợi thế lớn.';
+                        hard.value = '- Thành thạo MISA SME & Hóa đơn điện tử.\n- Nghiệp vụ hạch toán chuẩn VAS.\n- Kỹ năng Excel nâng cao (Pivot Table, Vlookup, Xlookup).';
+                        soft.value = '- Trung thực, cẩn trọng, tỉ mỉ (Attention to Detail).\n- Bảo mật thông tin tuyệt đối (Confidentiality).\n- Kỹ năng quản lý thời gian & Deadline.';
+                        manage.value = '- Có khả năng hướng dẫn nghiệp vụ cho nhân viên mới.\n- Kỹ năng sắp xếp & lưu trữ hồ sơ khoa học.';
+                        achieve.value = '- Đã từng tham gia xây dựng hoặc cải tiến quy trình làm việc.\n- Không để xảy ra sai sót trọng yếu trong báo cáo tài chính năm gần nhất.';
+                        edu.value = '- Tốt nghiệp Đại học chuyên ngành Tài chính - Kế toán.\n- Chứng chỉ Kế toán trưởng hoặc CPA (ưu tiên).';
+                    }
+                }
+            } else if (modalType === 'refcheck') {
+                const cand = document.getElementById('ref-candidate');
+                const contact = document.getElementById('ref-contact');
+                if (cand && contact) {
+                    if (role === 'sales') {
+                        cand.innerText = 'Nguyễn Văn A';
+                        contact.innerText = 'Mr. Tùng (GĐ Kinh Doanh cũ)';
+                    } else {
+                        cand.innerText = 'Trần Thị B';
+                        contact.innerText = 'Ms. Lan (Kế Toán Trưởng cũ)';
+                    }
+                }
+            }
+        }
+
+        // Tab Switching Logic
+        function switchTab(tabName) {
+            // Safely hide all views
+            const views = ['view-process', 'view-raci', 'view-forms'];
+            views.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+
+            // Safely reset all tab buttons
+            const tabs = ['tab-process', 'tab-raci', 'tab-forms'];
+            tabs.forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) {
+                    btn.classList.remove('tab-active');
+                    btn.classList.add('tab-inactive');
+                }
+            });
+
+            // Activate selected view and button
+            const activeView = document.getElementById(`view-${tabName}`);
+            const activeBtn = document.getElementById(`tab-${tabName}`);
+            
+            if (activeView) activeView.classList.remove('hidden');
+            if (activeBtn) {
+                activeBtn.classList.remove('tab-inactive');
+                activeBtn.classList.add('tab-active');
+            }
+        }
+
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                
+                // Better mapping logic
+                let type = '';
+                if (modalId === 'modal-request') type = 'request';
+                else if (modalId === 'modal-scorecard') type = 'score';
+                else if (modalId === 'modal-refcheck') type = 'refcheck';
+                else if (modalId === 'modal-onboarding') type = 'onboard';
+                
+                // Only call switchRole if type is valid and elements exist
+                if (type) {
+                    // Try to find either sales or office button to init state
+                    const btnSales = document.getElementById(`btn-${type}-sales`);
+                    if (btnSales) {
+                        switchRole(type, 'sales');
+                    }
+                }
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
